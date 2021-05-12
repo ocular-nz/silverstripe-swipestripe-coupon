@@ -1,4 +1,10 @@
 <?php
+
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Extension;
+use SilverStripe\ORM\FieldType\DBMoney;
+use SilverStripe\View\Requirements;
+
 /**
  * Form field that represents {@link CouponRate}s in the Checkout form.
  */
@@ -7,7 +13,7 @@ class CouponModifierField extends ModificationField_Hidden {
 	/**
 	 * The amount this field represents e.g: 15% * order subtotal
 	 * 
-	 * @var Money
+	 * @var DBMoney
 	 */
 	protected $amount;
 
@@ -49,9 +55,9 @@ class CouponModifierField extends ModificationField_Hidden {
 	/**
 	 * Set the amount that this field represents.
 	 * 
-	 * @param Money $amount
+	 * @param DBMoney $amount
 	 */
-	public function setAmount(Money $amount) {
+	public function setAmount(DBMoney $amount) {
 		$this->amount = $amount;
 		return $this;
 	}

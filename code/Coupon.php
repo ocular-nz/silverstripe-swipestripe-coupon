@@ -1,4 +1,25 @@
 <?php
+
+use SilverStripe\Control\Controller;
+use SilverStripe\Control\PjaxResponseNegotiator;
+use SilverStripe\Core\Extension;
+use SilverStripe\Forms\DateField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\Tab;
+use SilverStripe\Forms\TabSet;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Permission;
+use SilverStripe\Security\PermissionProvider;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\Requirements;
+
 /**
  * Coupon rates that can be set in {@link SiteConfig}. Several flat rates can be set 
  * for any supported shipping country.
@@ -55,7 +76,7 @@ class Coupon extends DataObject implements PermissionProvider {
         return Permission::check('EDIT_COUPONS');
     }
 
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = [])
     {
         return Permission::check('EDIT_COUPONS');
     }
@@ -163,7 +184,7 @@ class Coupon_Admin extends ShopAdmin {
 	);
 
 	private static $url_rule = 'ShopConfig/Coupon';
-	protected static $url_priority = 100;
+	private static $url_priority = 100;
 	private static $menu_title = 'Shop Coupons';
 
 	private static $url_handlers = array(
