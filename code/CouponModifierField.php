@@ -81,10 +81,10 @@ class CouponModifierField_Extension extends Extension {
 		'checkcoupon'
 	);
 
-	public function updateOrderForm($form) {
-		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
-		Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
-	}
+	// public function updateOrderForm($form) {
+	// 	Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+	// 	Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
+	// }
 
 	public function checkcoupon($request) {
 		$data = array('errorMessage' => null);

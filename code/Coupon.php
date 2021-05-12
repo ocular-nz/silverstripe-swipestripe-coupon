@@ -320,6 +320,31 @@ class Coupon_OrderExtension extends DataExtension {
 	public static $db = array(
 		'CouponCode' => 'Varchar'
 	);
+	// returns the percent discount from the coupon applied to the order
+	public function CouponDiscountPercent() {
+		if ($this->owner->CouponCode) {
+			$coupon = Coupon::get()->filter('Code', $this->owner->CouponCode)->first();
+			return $coupon ? $coupon->Discount : 0;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	// applies coupon percent discount to amount to return the value to be subtracted from the amount
+	private function ApplyDiscount($amount) {
+		return $this->CouponDiscountPercent() * 0.01 * $amount;
+	}
+
+	// returns a formatted string version of the discount applied to an item of $amount value
+	public function CouponDiscountValue($amount) {
+		return number_format($this->ApplyDiscount($amount), 2, '.', '');
+	}
+
+	// returns the new total value of an item worth $amount after coupn discount is applied
+	public function CouponDiscountTotal($amount) {
+		return number_format($amount - $this->ApplyDiscount($amount), 2, '.', '');
+	}
 }
 
 class Coupon_CheckoutFormExtension extends Extension {
