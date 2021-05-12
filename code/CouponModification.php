@@ -1,5 +1,9 @@
 <?php
 
+use SilverStripe\Core\Convert;
+use SilverStripe\Forms\FieldList;
+use SwipeStripe\Order\Modification;
+
 class CouponModification extends Modification {
 
 	private static $has_one = array(

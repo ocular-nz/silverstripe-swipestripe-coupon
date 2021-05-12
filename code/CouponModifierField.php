@@ -4,6 +4,7 @@ use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\FieldType\DBMoney;
 use SilverStripe\View\Requirements;
+use SwipeStripe\Form\ModificationField_Hidden;
 
 /**
  * Form field that represents {@link CouponRate}s in the Checkout form.

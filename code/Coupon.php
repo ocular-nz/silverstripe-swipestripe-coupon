@@ -19,6 +19,7 @@ use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
+use SwipeStripe\Admin\ShopAdmin;
 
 /**
  * Coupon rates that can be set in {@link SiteConfig}. Several flat rates can be set 
