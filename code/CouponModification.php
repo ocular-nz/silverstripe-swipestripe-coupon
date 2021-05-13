@@ -7,7 +7,7 @@ use SwipeStripe\Order\Modification;
 class CouponModification extends Modification {
 
 	private static $has_one = array(
-		'Coupon' => 'Coupon'
+		'Coupon' => Coupon::class
 	);
 
 	private static $defaults = array(

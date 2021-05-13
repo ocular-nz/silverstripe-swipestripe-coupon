@@ -20,6 +20,7 @@ use SilverStripe\Security\PermissionProvider;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
 use SwipeStripe\Admin\ShopAdmin;
+use SwipeStripe\Admin\ShopConfig;
 
 /**
  * Coupon rates that can be set in {@link SiteConfig}. Several flat rates can be set 
@@ -45,7 +46,7 @@ class Coupon extends DataObject implements PermissionProvider {
 	 * @var unknown_type
 	 */
 	private static $has_one = array(
-		'ShopConfig' => 'ShopConfig'
+		'ShopConfig' => ShopConfig::class
 	);
 
 	private static $summary_fields = array(
