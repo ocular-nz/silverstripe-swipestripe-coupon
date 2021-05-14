@@ -1,5 +1,7 @@
 <?php
 
+namespace SwipeStripeCoupon;
+
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\FieldType\DBMoney;

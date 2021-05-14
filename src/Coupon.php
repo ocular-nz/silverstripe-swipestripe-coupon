@@ -1,5 +1,7 @@
 <?php
 
+namespace SwipeStripeCoupon;
+
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\PjaxResponseNegotiator;
 use SilverStripe\Core\Extension;
@@ -27,6 +29,8 @@ use SwipeStripe\Admin\ShopConfig;
  * for any supported shipping country.
  */
 class Coupon extends DataObject implements PermissionProvider {
+
+	private static $table_name = 'Coupon';
 	
 	/**
 	 * Fields for this tax rate
