@@ -1,6 +1,6 @@
 <?php
 
-namespace SwipeStripeCoupon;
+namespace Coupon;
 
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;

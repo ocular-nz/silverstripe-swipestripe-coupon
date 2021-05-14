@@ -1,6 +1,6 @@
 <?php
 
-namespace SwipeStripeCoupon;
+namespace Coupon;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\PjaxResponseNegotiator;

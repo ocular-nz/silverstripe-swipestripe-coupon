@@ -1,6 +1,6 @@
 <?php
 
-namespace SwipeStripeCoupon;
+namespace Coupon;
 
 use SilverStripe\Core\Convert;
 use SilverStripe\Forms\FieldList;
@@ -8,7 +8,7 @@ use SwipeStripe\Order\Modification;
 
 class CouponModification extends Modification {
 
-	
+
 
 	private static $has_one = array(
 		'Coupon' => Coupon::class
