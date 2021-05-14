@@ -8,7 +8,7 @@ use SwipeStripe\Order\Modification;
 
 class CouponModification extends Modification {
 
-
+	private static $table_name = 'CouponModification';
 
 	private static $has_one = array(
 		'Coupon' => Coupon::class
