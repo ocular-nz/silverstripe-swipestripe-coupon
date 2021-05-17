@@ -28,10 +28,11 @@ use SwipeStripe\Admin\ShopConfig;
  * Coupon rates that can be set in {@link SiteConfig}. Several flat rates can be set 
  * for any supported shipping country.
  */
-class Coupon extends DataObject implements PermissionProvider {
+class Coupon extends DataObject implements PermissionProvider
+{
 
 	private static $table_name = 'Coupon';
-	
+
 	/**
 	 * Fields for this tax rate
 	 * 
@@ -43,7 +44,7 @@ class Coupon extends DataObject implements PermissionProvider {
 		'Discount' => 'Decimal(18,2)',
 		'Expiry' => 'Date'
 	);
-	
+
 	/**
 	 * Coupon rates are associated with SiteConfigs.
 	 * 
@@ -60,43 +61,46 @@ class Coupon extends DataObject implements PermissionProvider {
 		'Expiry' => 'Expiry'
 	);
 
-    public function providePermissions()
-    {
-        return array(
-            'EDIT_COUPONS' => 'Edit Coupons',
-        );
-    }
+	public function providePermissions()
+	{
+		return array(
+			'EDIT_COUPONS' => 'Edit Coupons',
+		);
+	}
 
-    public function canEdit($member = null)
-    {
-        return Permission::check('EDIT_COUPONS');
-    }
+	public function canEdit($member = null)
+	{
+		return Permission::check('EDIT_COUPONS');
+	}
 
-    public function canView($member = null)
-    {
-        return true;
-    }
+	public function canView($member = null)
+	{
+		return true;
+	}
 
-    public function canDelete($member = null)
-    {
-        return Permission::check('EDIT_COUPONS');
-    }
+	public function canDelete($member = null)
+	{
+		return Permission::check('EDIT_COUPONS');
+	}
 
-    public function canCreate($member = null, $context = [])
-    {
-        return Permission::check('EDIT_COUPONS');
-    }
-	
+	public function canCreate($member = null, $context = [])
+	{
+		return Permission::check('EDIT_COUPONS');
+	}
+
 	/**
 	 * Field for editing a {@link Coupon}.
 	 * 
 	 * @return FieldSet
 	 */
-	public function getCMSFields() {
+	public function getCMSFields()
+	{
 
 		return new FieldList(
-			$rootTab = new TabSet('Root',
-				$tabMain = new Tab('CouponRate',
+			$rootTab = new TabSet(
+				'Root',
+				$tabMain = new Tab(
+					'CouponRate',
 					TextField::create('Title', _t('Coupon.TITLE', 'Title')),
 					TextField::create('Code', _t('Coupon.CODE', 'Code')),
 					NumericField::create('Discount', _t('Coupon.DISCOUNT', 'Coupon discount'))
@@ -107,27 +111,30 @@ class Coupon extends DataObject implements PermissionProvider {
 			)
 		);
 	}
-	
+
 	/**
 	 * Label for using on {@link CouponModifierField}s.
 	 * 
 	 * @see CouponModifierField
 	 * @return String
 	 */
-	public function Label() {
+	public function Label()
+	{
 		return $this->Title . ' ' . $this->SummaryOfDiscount() . ' discount';
 	}
-	
+
 	/**
 	 * Summary of the current tax rate
 	 * 
 	 * @return String
 	 */
-	public function SummaryOfDiscount() {
+	public function SummaryOfDiscount()
+	{
 		return $this->Discount . ' %';
 	}
 
-	public function Amount($order) {
+	public function Amount($order)
+	{
 
 		// TODO: Multi currency
 
@@ -155,19 +162,20 @@ class Coupon extends DataObject implements PermissionProvider {
 	 * 
 	 * @return Price
 	 */
-	public function Price($order) {
-		
+	public function Price($order)
+	{
+
 		$amount = $this->Amount($order);
 		$this->extend('updatePrice', $amount);
 		return $amount;
 	}
-	
 }
 
 /**
  * So that {@link Coupon}s can be created in {@link SiteConfig}.
  */
-class Coupon_Extension extends DataExtension {
+class Coupon_Extension extends DataExtension
+{
 
 	/**
 	 * Attach {@link Coupon}s to {@link SiteConfig}.
@@ -179,7 +187,8 @@ class Coupon_Extension extends DataExtension {
 	);
 }
 
-class Coupon_Admin extends ShopAdmin {
+class Coupon_Admin extends ShopAdmin
+{
 
 	private static $tree_class = 'ShopConfig';
 
@@ -198,12 +207,14 @@ class Coupon_Admin extends ShopAdmin {
 		'ShopConfig/Coupon' => 'CouponSettings'
 	);
 
-	public function init() {
+	public function init()
+	{
 		parent::init();
 		$this->modelClass = 'ShopConfig';
 	}
 
-	public function Breadcrumbs($unlinked = false) {
+	public function Breadcrumbs($unlinked = false)
+	{
 
 		$request = $this->getRequest();
 		$items = parent::Breadcrumbs($unlinked);
@@ -218,44 +229,49 @@ class Coupon_Admin extends ShopAdmin {
 		return $items;
 	}
 
-	public function SettingsForm($request = null) {
+	public function SettingsForm($request = null)
+	{
 		return $this->CouponSettingsForm();
 	}
 
-	public function CouponSettings($request) {
+	public function CouponSettings($request)
+	{
 
 		if ($request->isAjax()) {
 			$controller = $this;
 			$responseNegotiator = new PjaxResponseNegotiator(
 				array(
-					'CurrentForm' => function() use(&$controller) {
+					'CurrentForm' => function () use (&$controller) {
 						return $controller->CouponSettingsForm()->forTemplate();
 					},
-					'Content' => function() use(&$controller) {
+					'Content' => function () use (&$controller) {
 						return $controller->renderWith('ShopAdminSettings_Content');
 					},
-					'Breadcrumbs' => function() use (&$controller) {
+					'Breadcrumbs' => function () use (&$controller) {
 						return $controller->renderWith('CMSBreadcrumbs');
 					},
-					'default' => function() use(&$controller) {
+					'default' => function () use (&$controller) {
 						return $controller->renderWith($controller->getViewer('show'));
 					}
 				),
 				$this->response
-			); 
+			);
 			return $responseNegotiator->respond($this->getRequest());
 		}
 
 		return $this->renderWith('ShopAdminSettings');
 	}
 
-	public function CouponSettingsForm() {
+	public function CouponSettingsForm()
+	{
 
 		$shopConfig = ShopConfig::get()->First();
 
 		$fields = new FieldList(
-			$rootTab = new TabSet('Root',
-				$tabMain = new Tab('Coupon',
+			$rootTab = new TabSet(
+				'Root',
+				$tabMain = new Tab(
+					'Coupon',
 					GridField::create(
 						'Coupons',
 						'Coupons',
@@ -282,7 +298,7 @@ class Coupon_Admin extends ShopAdmin {
 		$form->setTemplate('ShopAdminSettings_EditForm');
 		$form->setAttribute('data-pjax-fragment', 'CurrentForm');
 		$form->addExtraClass('cms-content cms-edit-form center ss-tabset');
-		if($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
+		if ($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
 		$form->setFormAction(Controller::join_links($this->Link($this->sanitiseClassName($this->modelClass)), 'Coupon/CouponSettingsForm'));
 
 		$form->loadDataFrom($shopConfig);
@@ -290,7 +306,8 @@ class Coupon_Admin extends ShopAdmin {
 		return $form;
 	}
 
-	public function saveCouponSettings($data, $form) {
+	public function saveCouponSettings($data, $form)
+	{
 
 		//Hack for LeftAndMain::getRecord()
 		self::$tree_class = 'ShopConfig';
@@ -303,26 +320,27 @@ class Coupon_Admin extends ShopAdmin {
 		$controller = $this;
 		$responseNegotiator = new PjaxResponseNegotiator(
 			array(
-				'CurrentForm' => function() use(&$controller) {
+				'CurrentForm' => function () use (&$controller) {
 					//return $controller->renderWith('ShopAdminSettings_Content');
 					return $controller->CouponSettingsForm()->forTemplate();
 				},
-				'Content' => function() use(&$controller) {
+				'Content' => function () use (&$controller) {
 					//return $controller->renderWith($controller->getTemplatesWithSuffix('_Content'));
 				},
-				'Breadcrumbs' => function() use (&$controller) {
+				'Breadcrumbs' => function () use (&$controller) {
 					return $controller->renderWith('CMSBreadcrumbs');
 				},
-				'default' => function() use(&$controller) {
+				'default' => function () use (&$controller) {
 					return $controller->renderWith($controller->getViewer('show'));
 				}
 			),
 			$this->response
-		); 
+		);
 		return $responseNegotiator->respond($this->getRequest());
 	}
 
-	public function getSnippet() {
+	public function getSnippet()
+	{
 
 		if (!$member = Member::currentUser()) return false;
 		if (!Permission::check('CMS_ACCESS_' . get_class($this), 'any', $member)) return false;
@@ -334,11 +352,10 @@ class Coupon_Admin extends ShopAdmin {
 			'LinkTitle' => 'Edit coupons'
 		))->renderWith('ShopAdmin_Snippet');
 	}
-
 }
 
-class Coupon_OrderExtension extends DataExtension {
-
+class Coupon_OrderExtension extends DataExtension
+{
 	/**
 	 * Attach {@link Coupon}s to {@link SiteConfig}.
 	 * 
@@ -348,51 +365,55 @@ class Coupon_OrderExtension extends DataExtension {
 		'CouponCode' => 'Varchar'
 	);
 	// returns the percent discount from the coupon applied to the order
-	public function CouponDiscountPercent() {
+	public function CouponDiscountPercent()
+	{
 		if ($this->owner->CouponCode) {
 			$coupon = Coupon::get()->filter('Code', $this->owner->CouponCode)->first();
 			return $coupon ? $coupon->Discount : 0;
-		}
-		else {
+		} else {
 			return 0;
 		}
 	}
 
 	// applies coupon percent discount to amount to return the value to be subtracted from the amount
-	private function ApplyDiscount($amount) {
+	private function ApplyDiscount($amount)
+	{
 		return $this->CouponDiscountPercent() * 0.01 * $amount;
 	}
 
 	// returns a formatted string version of the discount applied to an item of $amount value
-	public function CouponDiscountValue($amount) {
+	public function CouponDiscountValue($amount)
+	{
 		return number_format($this->ApplyDiscount($amount), 2, '.', '');
 	}
 
 	// returns the new total value of an item worth $amount after coupn discount is applied
-	public function CouponDiscountTotal($amount) {
+	public function CouponDiscountTotal($amount)
+	{
 		return number_format($amount - $this->ApplyDiscount($amount), 2, '.', '');
 	}
 }
 
-class Coupon_CheckoutFormExtension extends Extension {
+class Coupon_CheckoutFormExtension extends Extension
+{
 
-	public function getCouponFields() {
-
+	public function getCouponFields()
+	{
 		$fields = new FieldList();
-		$fields->push(Coupon_Field::create('CouponCode', _t('Coupon.COUPON_CODE_LABEL', 'Enter your coupon code'))
-			->setForm($this->owner)
+		$fields->push(
+			Coupon_Field::create('CouponCode', _t('Coupon.COUPON_CODE_LABEL', 'Enter your coupon code'))
+				->setForm($this->owner)
 		);
 		return $fields;
 	}
 }
 
-class Coupon_Field extends TextField {
+class Coupon_Field extends TextField
+{
 
-	public function FieldHolder($properties = array()) {
-		
-		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+	public function FieldHolder($properties = array())
+	{
 		Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
 		return $this->renderWith('CouponField');
 	}
 }
-

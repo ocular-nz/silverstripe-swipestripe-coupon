@@ -11,8 +11,9 @@ use SwipeStripe\Form\ModificationField_Hidden;
 /**
  * Form field that represents {@link CouponRate}s in the Checkout form.
  */
-class CouponModifierField extends ModificationField_Hidden {
-	
+class CouponModifierField extends ModificationField_Hidden
+{
+
 	/**
 	 * The amount this field represents e.g: 15% * order subtotal
 	 * 
@@ -26,8 +27,8 @@ class CouponModifierField extends ModificationField_Hidden {
 	 * @see FormField::FieldHolder()
 	 * @return String
 	 */
-	public function FieldHolder($properties = array()) {
-		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+	public function FieldHolder($properties = array())
+	{
 		Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
 		return $this->renderWith($this->template);
 	}
@@ -39,7 +40,8 @@ class CouponModifierField extends ModificationField_Hidden {
 	 * 
 	 * @param Order $order
 	 */
-	public function updateValue($order, $data) {
+	public function updateValue($order, $data)
+	{
 		return $this;
 	}
 
@@ -48,29 +50,31 @@ class CouponModifierField extends ModificationField_Hidden {
 	 * FlatFeeShippingRate it represents is valid for the Shipping country being set in the 
 	 * {@link Order}.
 	 */
-	public function validate($validator){
+	public function validate($validator)
+	{
 
 		$valid = true;
 		return $valid;
-
 	}
-	
+
 	/**
 	 * Set the amount that this field represents.
 	 * 
 	 * @param DBMoney $amount
 	 */
-	public function setAmount(DBMoney $amount) {
+	public function setAmount(DBMoney $amount)
+	{
 		$this->amount = $amount;
 		return $this;
 	}
-	
+
 	/**
 	 * Return the amount for this tax rate for displaying in the {@link CheckoutForm}
 	 * 
 	 * @return String
 	 */
-	public function Description() {
+	public function Description()
+	{
 		return $this->amount->Nice();
 	}
 
@@ -79,23 +83,25 @@ class CouponModifierField extends ModificationField_Hidden {
 	 * 
 	 * @return Boolean True
 	 */
-	public function modifiesSubTotal() {
+	public function modifiesSubTotal()
+	{
 		return false;
 	}
 }
 
-class CouponModifierField_Extension extends Extension {
+class CouponModifierField_Extension extends Extension
+{
 
-	private static $allowed_actions = array (
+	private static $allowed_actions = array(
 		'checkcoupon'
 	);
 
 	// public function updateOrderForm($form) {
-	// 	Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
 	// 	Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
 	// }
 
-	public function checkcoupon($request) {
+	public function checkcoupon($request)
+	{
 		$data = array('errorMessage' => null);
 		$code = Convert::raw2sql($request->postVar('CouponCode'));
 		$date = date('Y-m-d');

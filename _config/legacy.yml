@@ -1,0 +1,8 @@
+---
+Name: coupon-legacy
+---
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    Coupon: Coupon\Coupon
+    CouponModification: Coupon\CouponModification
+    
