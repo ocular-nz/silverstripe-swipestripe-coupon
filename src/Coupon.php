@@ -16,6 +16,7 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
@@ -315,7 +316,7 @@ class Coupon_Admin extends ShopAdmin
 		$config = ShopConfig::get()->First();
 		$form->saveInto($config);
 		$config->write();
-		$form->sessionMessage('Saved Coupon Settings', 'good');
+		$form->sessionMessage('Saved Coupon Settings', ValidationResult::TYPE_GOOD);
 
 		$controller = $this;
 		$responseNegotiator = new PjaxResponseNegotiator(
