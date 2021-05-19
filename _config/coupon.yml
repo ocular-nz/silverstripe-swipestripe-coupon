@@ -11,7 +11,7 @@ SwipeStripe\Order\Order:
 SwipeStripe\Form\OrderForm:
   extensions: 
     - 'Coupon\Coupon_CheckoutFormExtension'
-SwipeStripe\Customer\CheckoutPage_Controller:
+SwipeStripe\Customer\CheckoutPageController:
   extensions: 
     - 'Coupon\CouponModifierField_Extension'
 

@@ -208,10 +208,10 @@ class Coupon_Admin extends ShopAdmin
 		'ShopConfig/Coupon' => 'CouponSettings'
 	);
 
-	public function init()
+	protected function init()
 	{
 		parent::init();
-		$this->modelClass = 'ShopConfig';
+		$this->modelClass = ShopConfig::class;
 	}
 
 	public function Breadcrumbs($unlinked = false)
