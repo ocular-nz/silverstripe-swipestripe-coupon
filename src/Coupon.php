@@ -200,13 +200,13 @@ class Coupon_Admin extends ShopAdmin
 		'saveCouponSettings'
 	);
 
-	private static $url_rule = 'ShopConfig/Coupon';
+	private static $url_rule = 'SwipeStripe-Admin-ShopConfig/Coupon';
 	private static $url_priority = 100;
 	private static $menu_title = 'Shop Coupons';
 
 	private static $url_handlers = array(
-		'ShopConfig/Coupon/CouponSettingsForm' => 'CouponSettingsForm',
-		'ShopConfig/Coupon' => 'CouponSettings'
+		'SwipeStripe-Admin-ShopConfig/Coupon/CouponSettingsForm' => 'CouponSettingsForm',
+		'SwipeStripe-Admin-ShopConfig/Coupon' => 'CouponSettings'
 	);
 
 	protected function init()
@@ -247,7 +247,7 @@ class Coupon_Admin extends ShopAdmin
 						return $controller->CouponSettingsForm()->forTemplate();
 					},
 					'Content' => function () use (&$controller) {
-						return $controller->renderWith('ShopAdminSettings_Content');
+						return $controller->renderWith('Includes/ShopAdminSettings_Content');
 					},
 					'Breadcrumbs' => function () use (&$controller) {
 						return $controller->renderWith('CMSBreadcrumbs');
@@ -323,7 +323,7 @@ class Coupon_Admin extends ShopAdmin
 		$responseNegotiator = new PjaxResponseNegotiator(
 			array(
 				'CurrentForm' => function () use (&$controller) {
-					//return $controller->renderWith('ShopAdminSettings_Content');
+					//return $controller->renderWith('Includes/ShopAdminSettings_Content');
 					return $controller->CouponSettingsForm()->forTemplate();
 				},
 				'Content' => function () use (&$controller) {
@@ -350,9 +350,9 @@ class Coupon_Admin extends ShopAdmin
 		return $this->customise(array(
 			'Title' => 'Coupon Management',
 			'Help' => 'Create coupons',
-			'Link' => Controller::join_links($this->Link('ShopConfig'), 'Coupon'),
+			'Link' => Controller::join_links($this->Link($this->sanitiseClassName(ShopConfig::class)), 'Coupon'),
 			'LinkTitle' => 'Edit coupons'
-		))->renderWith('Includes\ShopAdmin_Snippet');
+		))->renderWith('Includes/ShopAdmin_Snippet');
 	}
 }
 
