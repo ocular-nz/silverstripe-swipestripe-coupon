@@ -5,6 +5,7 @@ namespace Coupon;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\PjaxResponseNegotiator;
 use SilverStripe\Core\Extension;
+use SilverStripe\Dev\Debug;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -23,8 +24,10 @@ use SilverStripe\Security\PermissionProvider;
 use SilverStripe\Security\Security;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
+use SwipeStripe\Admin\GridFieldConfig_HasManyRelationEditor;
 use SwipeStripe\Admin\ShopAdmin;
 use SwipeStripe\Admin\ShopConfig;
+use SwipeStripe\Product\Price;
 
 /**
  * Coupon rates that can be set in {@link SiteConfig}. Several flat rates can be set 
@@ -132,7 +135,7 @@ class Coupon extends DataObject implements PermissionProvider
 	 */
 	public function SummaryOfDiscount()
 	{
-		return $this->Discount . ' %';
+		return $this->Discount;
 	}
 
 	public function Amount($order)
@@ -150,7 +153,7 @@ class Coupon extends DataObject implements PermissionProvider
 		$mods = $order->TotalModifications();
 
 		if ($mods && $mods->exists()) foreach ($mods as $mod) {
-			if ($mod->ClassName != 'CouponModification') {
+			if ($mod->ClassName != CouponModification::class) {
 				$total += $mod->Amount()->getAmount();
 			}
 		}
@@ -184,15 +187,15 @@ class Coupon_Extension extends DataExtension
 	 * 
 	 * @see DataObjectDecorator::extraStatics()
 	 */
-	public static $has_many = array(
-		'Coupons' => 'Coupon'
+	private static $has_many = array(
+		'Coupons' => Coupon::class
 	);
 }
 
 class Coupon_Admin extends ShopAdmin
 {
 
-	private static $tree_class = 'ShopConfig';
+	private static $tree_class = ShopConfig::class;
 
 	private static $allowed_actions = array(
 		'CouponSettings',
@@ -250,7 +253,7 @@ class Coupon_Admin extends ShopAdmin
 						return $controller->renderWith('Includes/ShopAdminSettings_Content');
 					},
 					'Breadcrumbs' => function () use (&$controller) {
-						return $controller->renderWith('CMSBreadcrumbs');
+						return $controller->renderWith('SilverStripe/Admin/Includes/CMSBreadcrumbs');
 					},
 					'default' => function () use (&$controller) {
 						return $controller->renderWith($controller->getViewer('show'));
@@ -261,7 +264,7 @@ class Coupon_Admin extends ShopAdmin
 			return $responseNegotiator->respond($this->getRequest());
 		}
 
-		return $this->renderWith('ShopAdminSettings');
+		return $this->renderWith('SwipeStripe/Admin/ShopAdminSettings');
 	}
 
 	public function CouponSettingsForm()
@@ -287,8 +290,7 @@ class Coupon_Admin extends ShopAdmin
 		$actions = new FieldList();
 		$actions->push(FormAction::create('saveCouponSettings', _t('GridFieldDetailForm.Save', 'Save'))
 			->setUseButtonTag(true)
-			->addExtraClass('ss-ui-action-constructive')
-			->setAttribute('data-icon', 'add'));
+			->addExtraClass('btn-primary font-icon-save'));
 
 		$form = new Form(
 			$this,
@@ -297,7 +299,7 @@ class Coupon_Admin extends ShopAdmin
 			$actions
 		);
 
-		$form->setTemplate('ShopAdminSettings_EditForm');
+		$form->setTemplate('Includes/ShopAdminSettings_EditForm');
 		$form->setAttribute('data-pjax-fragment', 'CurrentForm');
 		$form->addExtraClass('cms-content cms-edit-form center ss-tabset');
 		if ($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
@@ -312,7 +314,7 @@ class Coupon_Admin extends ShopAdmin
 	{
 
 		//Hack for LeftAndMain::getRecord()
-		self::$tree_class = 'ShopConfig';
+		self::$tree_class = ShopConfig::class;
 
 		$config = ShopConfig::get()->First();
 		$form->saveInto($config);
@@ -330,7 +332,7 @@ class Coupon_Admin extends ShopAdmin
 					//return $controller->renderWith($controller->getTemplatesWithSuffix('_Content'));
 				},
 				'Breadcrumbs' => function () use (&$controller) {
-					return $controller->renderWith('CMSBreadcrumbs');
+					return $controller->renderWith('SilverStripe/Admin/CMSBreadcrumbs');
 				},
 				'default' => function () use (&$controller) {
 					return $controller->renderWith($controller->getViewer('show'));
