@@ -332,7 +332,7 @@ class Coupon_Admin extends ShopAdmin
 					//return $controller->renderWith($controller->getTemplatesWithSuffix('_Content'));
 				},
 				'Breadcrumbs' => function () use (&$controller) {
-					return $controller->renderWith('SilverStripe/Admin/CMSBreadcrumbs');
+					return $controller->renderWith('SilverStripe/Admin/Includes/CMSBreadcrumbs');
 				},
 				'default' => function () use (&$controller) {
 					return $controller->renderWith($controller->getViewer('show'));
