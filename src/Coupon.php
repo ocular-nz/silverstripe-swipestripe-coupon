@@ -418,6 +418,6 @@ class Coupon_Field extends TextField
 	public function FieldHolder($properties = array())
 	{
 		Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
-		return $this->renderWith('CouponField');
+		return $this->renderWith('Includes/CouponField');
 	}
 }

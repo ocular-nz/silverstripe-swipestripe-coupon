@@ -22,5 +22,10 @@
 		"irc": "irc://irc.freenode.org/silverstripe",
 		"forum": "http://www.silverstripe.org/e-commerce-modules/",
 		"issues": "https://github.com/swipestripe/silverstripe-swipestripe-coupon/issues"
+	},
+	"extra": {
+		"expose": [
+			"javascript"
+		]
 	}
 }
