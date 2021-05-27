@@ -30,7 +30,7 @@ class CouponModifierField extends ModificationField_Hidden
 	public function FieldHolder($properties = array())
 	{
 		Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
-		return $this->renderWith($this->template);
+		return parent::FieldHolder($properties);
 	}
 
 	/**
