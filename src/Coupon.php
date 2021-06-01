@@ -111,7 +111,6 @@ class Coupon extends DataObject implements PermissionProvider
 					NumericField::create('Discount', _t('Coupon.DISCOUNT', 'Coupon discount'))
 						->setRightTitle('As a percentage (%)'),
 					DateField::create('Expiry')
-						->setConfig('showcalendar', true)
 				)
 			)
 		);
@@ -215,7 +214,7 @@ class Coupon_Admin extends ShopAdmin
 	protected function init()
 	{
 		parent::init();
-		$this->modelClass = ShopConfig::class;
+		$this->modelTab = ShopConfig::class;
 	}
 
 	public function Breadcrumbs($unlinked = false)
@@ -228,7 +227,7 @@ class Coupon_Admin extends ShopAdmin
 
 		$items->push(new ArrayData(array(
 			'Title' => 'Coupon Settings',
-			'Link' => $this->Link(Controller::join_links($this->sanitiseClassName($this->modelClass), 'Coupon'))
+			'Link' => $this->Link(Controller::join_links($this->sanitiseClassName($this->modelTab), 'Coupon'))
 		)));
 
 		return $items;
@@ -290,7 +289,7 @@ class Coupon_Admin extends ShopAdmin
 		$actions = new FieldList();
 		$actions->push(FormAction::create('saveCouponSettings', _t('GridFieldDetailForm.Save', 'Save'))
 			->setUseButtonTag(true)
-			->addExtraClass('btn-primary font-icon-save'));
+			->addExtraClass('btn-outline-primary font-icon-tick action'));
 
 		$form = new Form(
 			$this,
@@ -302,8 +301,8 @@ class Coupon_Admin extends ShopAdmin
 		$form->setTemplate('Includes/ShopAdminSettings_EditForm');
 		$form->setAttribute('data-pjax-fragment', 'CurrentForm');
 		$form->addExtraClass('cms-content cms-edit-form center ss-tabset');
-		if ($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('CMSTabSet');
-		$form->setFormAction(Controller::join_links($this->Link($this->sanitiseClassName($this->modelClass)), 'Coupon/CouponSettingsForm'));
+		if ($form->Fields()->hasTabset()) $form->Fields()->findOrMakeTab('Root')->setTemplate('SilverStripe/Forms/CMSTabSet');
+		$form->setFormAction(Controller::join_links($this->Link($this->sanitiseClassName($this->modelTab)), 'Coupon/CouponSettingsForm'));
 
 		$form->loadDataFrom($shopConfig);
 
