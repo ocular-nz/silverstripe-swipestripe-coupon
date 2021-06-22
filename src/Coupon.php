@@ -364,14 +364,14 @@ class Coupon_OrderExtension extends DataExtension
 	 * 
 	 * @see DataObjectDecorator::extraStatics()
 	 */
-	public static $db = array(
+	private static $db = array(
 		'CouponCode' => 'Varchar'
 	);
 	// returns the percent discount from the coupon applied to the order
 	public function CouponDiscountPercent()
 	{
-		if ($this->owner->CouponCode) {
-			$coupon = Coupon::get()->filter('Code', $this->owner->CouponCode)->first();
+		if ($this->getOwner()->CouponCode) {
+			$coupon = Coupon::get()->filter('Code', $this->getOwner()->CouponCode)->first();
 			return $coupon ? $coupon->Discount : 0;
 		} else {
 			return 0;
