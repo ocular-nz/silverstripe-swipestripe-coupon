@@ -29,27 +29,32 @@ class CouponModification extends Modification {
 		}
 		
 		$date = date('Y-m-d');
+
 		$coupon = Coupon::get()
-			->where("\"Code\" = '$code' AND \"Expiry\" >= '$date'")
+			->filter('Code', $code)
+			->filter('Expiry:GreaterThanOrEqual', $date)
+			->filter('MinimumSpend:LessThanOrEqual', $order->CartTotalPrice()->getAmount())
 			->first();
 
-		if ($coupon && $coupon->exists()) {
-
-			//Generate the Modification
-			$mod = new CouponModification();
-			$mod->Price = $coupon->Amount($order)->getAmount();
-			$mod->Currency = $coupon->Currency;
-			$mod->Description = $coupon->Label();
-			$mod->OrderID = $order->ID;
-			$mod->Value = $coupon->ID;
-			$mod->CouponID = $coupon->ID;
-			$mod->write();
+		if (empty($coupon) || !$coupon->exists()) {
+			return;
 		}
+
+		//Generate the Modification
+		$mod = new CouponModification();
+		$mod->Price = $coupon->Amount($order)->getAmount();
+		$mod->Currency = $coupon->Currency;
+		$mod->Description = $coupon->Label();
+		$mod->OrderID = $order->ID;
+		$mod->Value = $coupon->ID;
+		$mod->CouponID = $coupon->ID;
+		$mod->write();
+		
 	}
 
 	public function getFormFields() {
 
-		$fields = new FieldList();
+		$fields = new FieldList();	
 
 		$coupon = $this->Coupon();
 		if ($coupon && $coupon->exists()) {

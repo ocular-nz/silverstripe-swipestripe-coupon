@@ -6,12 +6,14 @@ use SilverStripe\Control\Controller;
 use SilverStripe\Control\PjaxResponseNegotiator;
 use SilverStripe\Core\Extension;
 use SilverStripe\Dev\Debug;
+use SilverStripe\Forms\CurrencyField;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\Tab;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextField;
@@ -39,7 +41,6 @@ class Coupon extends DataObject implements PermissionProvider
 	private static $table_name = 'Coupon';
 
 	/**
-	 * Fields for this tax rate
 	 * 
 	 * @var Array
 	 */
@@ -47,6 +48,8 @@ class Coupon extends DataObject implements PermissionProvider
 		'Title' => 'Varchar',
 		'Code' => 'Varchar',
 		'Discount' => 'Decimal(18,2)',
+		'Type' => 'Enum("Percentage,Flat")',
+		'MinimumSpend' => 'Currency',
 		'Expiry' => 'Date'
 	);
 
@@ -63,6 +66,8 @@ class Coupon extends DataObject implements PermissionProvider
 		'Title' => 'Title',
 		'Code' => 'Code',
 		'SummaryOfDiscount' => 'Discount',
+		'Type' => 'Type',
+		'MinimumSpend' => 'Minimum Spend',
 		'Expiry' => 'Expiry'
 	);
 
@@ -106,10 +111,14 @@ class Coupon extends DataObject implements PermissionProvider
 				'Root',
 				$tabMain = new Tab(
 					'CouponRate',
-					TextField::create('Title', _t('Coupon.TITLE', 'Title')),
-					TextField::create('Code', _t('Coupon.CODE', 'Code')),
-					NumericField::create('Discount', _t('Coupon.DISCOUNT', 'Coupon discount'))
-						->setRightTitle('As a percentage (%)'),
+					TextField::create(name: 'Title', title: _t('Coupon.TITLE', 'Title')),
+					TextField::create(name: 'Code',title:  _t('Coupon.CODE', 'Code')),
+					OptionsetField::create(name: 'Type', title: _t('Coupon.DISCOUNT_TYPE', 'Discount Type'), source: [
+						'Percentage' => 'Percentage',
+						'Flat' => 'Flat Amount',
+					], default: 'Percentage'),
+					NumericField::create(name: 'Discount', title: _t('Coupon.DISCOUNT', 'Coupon discount')),
+					CurrencyField::create(name: 'MinimumSpend', title: _t('Coupon.MIN_SPEND', 'Minimum Spend'))->setRightTitle('Valid for purchases of at least this amount, not including shipping'),
 					DateField::create('Expiry')
 				)
 			)
@@ -124,7 +133,7 @@ class Coupon extends DataObject implements PermissionProvider
 	 */
 	public function Label()
 	{
-		return $this->Title . ' ' . $this->SummaryOfDiscount() . ' discount';
+		return $this->Title . ' Discount';
 	}
 
 	/**
@@ -156,7 +165,12 @@ class Coupon extends DataObject implements PermissionProvider
 				$total += $mod->Amount()->getAmount();
 			}
 		}
-		$amount->setAmount(- ($total * ($this->Discount / 100)));
+
+		if ($this->Type === 'Percentage') {
+			$amount->setAmount(round(0 - ($total * ($this->Discount / 100)), 2));
+		} else {
+			$amount->setAmount(round(0 - min($this->Discount, $total)), 2);
+		}
 
 		return $amount;
 	}

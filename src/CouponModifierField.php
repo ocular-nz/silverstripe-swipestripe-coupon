@@ -102,14 +102,15 @@ class CouponModifierField_Extension extends Extension
 
 	public function checkcoupon($request)
 	{
-		$data = array('errorMessage' => null);
+		$data = ['errorMessage' => null];
 		$code = Convert::raw2sql($request->postVar('CouponCode'));
 		$date = date('Y-m-d');
 		$coupon = Coupon::get()
-			->where("\"Code\" = '$code' AND \"Expiry\" >= '$date'")
+			->filter('Code', $code)
+			->filter('Expiry:GreaterThanOrEqual', $date)
 			->first();
 
-		if (!$coupon || !$coupon->exists()) {
+		if (empty($coupon) || !$coupon->exists()) {
 			$data['errorMessage'] = 'Coupon is invalid or expired.';
 		}
 
