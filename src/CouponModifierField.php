@@ -2,10 +2,12 @@
 
 namespace Coupon;
 
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Convert;
 use SilverStripe\Core\Extension;
 use SilverStripe\ORM\FieldType\DBMoney;
 use SilverStripe\View\Requirements;
+use SwipeStripe\Customer\Cart;
 use SwipeStripe\Form\ModificationField_Hidden;
 
 /**
@@ -100,20 +102,22 @@ class CouponModifierField_Extension extends Extension
 	// 	Requirements::javascript('swipestripe-coupon/javascript/CouponModifierField.js');
 	// }
 
-	public function checkcoupon($request)
+	public function checkcoupon(HTTPRequest $request)
 	{
-		$data = ['errorMessage' => null];
 		$code = Convert::raw2sql($request->postVar('CouponCode'));
-		$date = date('Y-m-d');
-		$coupon = Coupon::get()
-			->filter('Code', $code)
-			->filter('Expiry:GreaterThanOrEqual', $date)
-			->first();
-
-		if (empty($coupon) || !$coupon->exists()) {
-			$data['errorMessage'] = 'Coupon is invalid or expired.';
+		
+		if (empty($code)) {
+			return json_encode(['errorMessage' => 'Please enter a coupon code.']);
 		}
 
-		return json_encode($data);
+		$order = Cart::get_current_order();
+
+		$mod = CouponModification::create();
+
+		if (empty($mod->getValidCouponOrFail($order, $code))) {
+			return json_encode(['errorMessage' => 'Coupon is invalid or expired.']);
+		}
+
+		return json_encode(['errorMessage' => 'Coupon added.']);
 	}
 }

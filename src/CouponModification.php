@@ -25,46 +25,17 @@ class CouponModification extends Modification {
 
 	public function add($order, $value = null) 
 	{
-		
 		//Get valid coupon for this order
-		if($value !== null){
-			$code = Convert::raw2sql($value);	
-		}else{
-			$code = Convert::raw2sql($order->CouponCode);		
-		}
+		$code = Convert::raw2sql($value ?? $order->CouponCode);
 		
-		$date = date('Y-m-d');
+		$coupon = $this->getValidCouponOrFail($order, $code);
 
-		$coupon = Coupon::get()
-			->filter('Code', $code)
-			->filter('Expiry:GreaterThanOrEqual', $date)
-			->filter('MinimumSpend:LessThanOrEqual', $order->CartTotalPrice()->getAmount())
-			->first();
-
-		if (empty($coupon) || !$coupon->exists()) {
+		if (empty($coupon)) {
 			return;
 		}
 
-		if ($coupon->MaxCustomerUses > 0) {
-			$orderIds = Customer::currentUser()->Orders()
-				->filter('PaymentStatus', 'Paid')
-				->column('ID');
-
-			$count = 0;
-			if (count($orderIds)) {
-				$count = CouponModification::get()
-					->filter('OrderID', $orderIds)
-					->filter('CouponID', $coupon->ID)
-					->count();
-			}
-
-			if ($count >= $coupon->MaxCustomerUses) {
-				return;
-			}
-		}
-
 		//Generate the Modification
-		$mod = new CouponModification();
+		$mod = CouponModification::create();
 		$mod->Price = $coupon->Amount($order)->getAmount();
 		$mod->Currency = $coupon->Currency;
 		$mod->Description = $coupon->Label();
@@ -75,8 +46,47 @@ class CouponModification extends Modification {
 		
 	}
 
-	public function getFormFields() {
+	public function getValidCouponOrFail($order, $code): ?Coupon
+	{
+		$date = date('Y-m-d');
 
+		$coupon = Coupon::get()
+			->filter('Code', $code)
+			->filter('Expiry:GreaterThanOrEqual', $date)
+			->filter('MinimumSpend:LessThanOrEqual', $order->CartTotalPrice()->getAmount())
+			->first();
+
+		if (empty($coupon) || !$coupon->exists()) {
+			return null;
+		}
+
+		if ($coupon->MaxCustomerUses > 0) {
+			$orderIds = [];
+			
+			if (Customer::currentUser()) {
+				$orderIds = Customer::currentUser()->Orders()
+					->filter('PaymentStatus', 'Paid')
+					->column('ID');
+			}
+
+			$count = 0;
+			if (count($orderIds)) {
+				$count = CouponModification::get()
+					->filter('OrderID', $orderIds)
+					->filter('CouponID', $coupon->ID)
+					->count();
+			}
+
+			if ($count >= $coupon->MaxCustomerUses) {
+				return null;
+			}
+		}
+
+		return $coupon;
+	}
+
+	public function getFormFields() 
+	{
 		$fields = new FieldList();	
 
 		$coupon = $this->Coupon();

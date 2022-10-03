@@ -439,3 +439,4 @@ class Coupon_Field extends TextField
 		return $this->renderWith('Includes/CouponField');
 	}
 }
+
