@@ -4,6 +4,10 @@ namespace Coupon;
 
 use SilverStripe\Core\Convert;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\ORM\DB;
+use SilverStripe\ORM\ManyManyList;
+use SilverStripe\Security\Security;
+use SwipeStripe\Customer\Customer;
 use SwipeStripe\Order\Modification;
 
 class CouponModification extends Modification {
@@ -19,8 +23,9 @@ class CouponModification extends Modification {
 		'SortOrder' => 200
 	);
 
-	public function add($order, $value = null) {
-
+	public function add($order, $value = null) 
+	{
+		
 		//Get valid coupon for this order
 		if($value !== null){
 			$code = Convert::raw2sql($value);	
@@ -38,6 +43,24 @@ class CouponModification extends Modification {
 
 		if (empty($coupon) || !$coupon->exists()) {
 			return;
+		}
+
+		if ($coupon->MaxCustomerUses > 0) {
+			$orderIds = Customer::currentUser()->Orders()
+				->filter('PaymentStatus', 'Paid')
+				->column('ID');
+
+			$count = 0;
+			if (count($orderIds)) {
+				$count = CouponModification::get()
+					->filter('OrderID', $orderIds)
+					->filter('CouponID', $coupon->ID)
+					->count();
+			}
+
+			if ($count >= $coupon->MaxCustomerUses) {
+				return;
+			}
 		}
 
 		//Generate the Modification

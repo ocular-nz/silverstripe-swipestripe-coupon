@@ -29,6 +29,7 @@ use SilverStripe\View\Requirements;
 use SwipeStripe\Admin\GridFieldConfig_HasManyRelationEditor;
 use SwipeStripe\Admin\ShopAdmin;
 use SwipeStripe\Admin\ShopConfig;
+use SwipeStripe\Customer\Customer;
 use SwipeStripe\Product\Price;
 
 /**
@@ -50,6 +51,7 @@ class Coupon extends DataObject implements PermissionProvider
 		'Discount' => 'Decimal(18,2)',
 		'Type' => 'Enum("Percentage,Flat")',
 		'MinimumSpend' => 'Currency',
+		'MaxCustomerUses' => 'Int',
 		'Expiry' => 'Date'
 	);
 
@@ -118,7 +120,10 @@ class Coupon extends DataObject implements PermissionProvider
 						'Flat' => 'Flat Amount',
 					], default: 'Percentage'),
 					NumericField::create(name: 'Discount', title: _t('Coupon.DISCOUNT', 'Coupon discount')),
-					CurrencyField::create(name: 'MinimumSpend', title: _t('Coupon.MIN_SPEND', 'Minimum Spend'))->setRightTitle('Valid for purchases of at least this amount, not including shipping'),
+					CurrencyField::create(name: 'MinimumSpend', title: _t('Coupon.MIN_SPEND', 'Minimum Spend'))
+						->setRightTitle('Valid for purchases of at least this amount, not including shipping'),
+					NumericField::create(name: 'MaxCustomerUses', title: _t('Coupon.MAX_CUST_USES', 'Maximum Uses Per Customer'))
+						->setRightTitle('Leave at 0 for unlimited'),
 					DateField::create('Expiry')
 				)
 			)
@@ -133,7 +138,7 @@ class Coupon extends DataObject implements PermissionProvider
 	 */
 	public function Label()
 	{
-		return $this->Title . ' Discount';
+		return $this->Title;
 	}
 
 	/**
