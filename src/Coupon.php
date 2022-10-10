@@ -397,6 +397,18 @@ class Coupon_OrderExtension extends DataExtension
 		}
 	}
 
+	/**
+	 * The amount deducted by the current coupon, expressed as a positive value
+	 */
+	public function CouponAmount()
+	{
+		$mod = $this->getOwner()->Modifications()->filter('ClassName', CouponModification::class)->first();
+		if (empty($mod)) {
+			return 0;
+		}
+		return abs($mod->Price);
+	}
+
 	// applies coupon percent discount to amount to return the value to be subtracted from the amount
 	private function ApplyDiscount($amount)
 	{
