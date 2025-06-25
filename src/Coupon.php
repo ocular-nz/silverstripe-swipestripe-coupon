@@ -17,14 +17,13 @@ use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\Tab;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextField;
-use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\Security\Security;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\View\Requirements;
 use SwipeStripe\Admin\GridFieldConfig_HasManyRelationEditor;
 use SwipeStripe\Admin\ShopAdmin;
@@ -197,7 +196,7 @@ class Coupon extends DataObject implements PermissionProvider
 /**
  * So that {@link Coupon}s can be created in {@link SiteConfig}.
  */
-class Coupon_Extension extends DataExtension
+class Coupon_Extension extends Extension
 {
 
 	/**
@@ -376,7 +375,7 @@ class Coupon_Admin extends ShopAdmin
 	}
 }
 
-class Coupon_OrderExtension extends DataExtension
+class Coupon_OrderExtension extends Extension
 {
 	/**
 	 * Attach {@link Coupon}s to {@link SiteConfig}.

@@ -44,7 +44,7 @@
 		
 		<!-- Add coupon fields to the OrderForm template -->
 		<section class="coupon">
-			<h3><% _t('Coupon.COUPON', 'Coupon') %></h3>
+			<h3><%t Coupon.COUPON "Coupon" %></h3>
 			<% loop CouponFields %>
 				$FieldHolder
 			<% end_loop %>
@@ -54,7 +54,7 @@
 		<!-- End of coupon fields -->
 		
 		<section class="order-details">
-			<h3><% _t('CheckoutForm.YOUR_ORDER', 'Your Order') %></h3>
+			<h3><%t CheckoutForm.YOUR_ORDER "Your Order" %></h3>
 
 			<div id="cart-loading-js" class="cart-loading">
 				<div>

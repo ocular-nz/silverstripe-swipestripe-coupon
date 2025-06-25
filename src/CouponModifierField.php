@@ -9,6 +9,7 @@ use SilverStripe\ORM\FieldType\DBMoney;
 use SilverStripe\View\Requirements;
 use SwipeStripe\Customer\Cart;
 use SwipeStripe\Form\ModificationField_Hidden;
+use SilverStripe\Core\Validation\ValidationResult;
 
 /**
  * Form field that represents {@link CouponRate}s in the Checkout form.
@@ -52,11 +53,9 @@ class CouponModifierField extends ModificationField_Hidden
 	 * FlatFeeShippingRate it represents is valid for the Shipping country being set in the 
 	 * {@link Order}.
 	 */
-	public function validate($validator)
+	public function validate(): ValidationResult
 	{
-
-		$valid = true;
-		return $valid;
+		return ValidationResult::create();
 	}
 
 	/**
