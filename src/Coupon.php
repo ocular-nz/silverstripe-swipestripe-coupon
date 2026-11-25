@@ -12,12 +12,20 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig;
+use SilverStripe\Forms\GridField\GridFieldDataColumns;
+use SilverStripe\Forms\GridField\GridFieldPaginator;
+use SilverStripe\Forms\GridField\GridFieldSortableHeader;
+use SilverStripe\Forms\GridField\GridFieldToolbarHeader;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\Tab;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataList;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Core\Convert;
 use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
@@ -29,6 +37,7 @@ use SwipeStripe\Admin\GridFieldConfig_HasManyRelationEditor;
 use SwipeStripe\Admin\ShopAdmin;
 use SwipeStripe\Admin\ShopConfig;
 use SwipeStripe\Customer\Customer;
+use SwipeStripe\Order\Order;
 use SwipeStripe\Product\Price;
 
 /**
@@ -69,7 +78,9 @@ class Coupon extends DataObject implements PermissionProvider
 		'SummaryOfDiscount' => 'Discount',
 		'Type' => 'Type',
 		'MinimumSpend' => 'Minimum Spend',
-		'Expiry' => 'Expiry'
+		'Expiry' => 'Expiry',
+		'UseCount' => 'Uses',
+		'LastUsedNice' => 'Last used'
 	);
 
 	public function providePermissions()
@@ -107,7 +118,7 @@ class Coupon extends DataObject implements PermissionProvider
 	public function getCMSFields()
 	{
 
-		return new FieldList(
+		$fields = new FieldList(
 			$rootTab = new TabSet(
 				'Root',
 				$tabMain = new Tab(
@@ -127,6 +138,97 @@ class Coupon extends DataObject implements PermissionProvider
 				)
 			)
 		);
+
+		if ($this->exists()) {
+			$fields->addFieldsToTab('Root.Usage', [
+				LiteralField::create('UsageSummary', '<p class="alert alert-info">' . Convert::raw2xml($this->UsageSummary()) . '</p>'),
+				$this->usesGridField(),
+			]);
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Paid orders this coupon was used on, newest first. Carts and unpaid orders carry the coupon too, so they don't
+	 * count, and neither do cancelled orders.
+	 */
+	public function Uses(): DataList
+	{
+		$orderIDs = CouponModification::get()->filter('CouponID', $this->ID)->column('OrderID');
+
+		return Order::get()
+			->filter(['ID' => $orderIDs ?: [0], 'PaymentStatus' => 'Paid'])
+			->exclude('Status', 'Cancelled')
+			->sort('OrderedOn', 'DESC');
+	}
+
+	public function UseCount(): int
+	{
+		return $this->Uses()->count();
+	}
+
+	public function LastUsedNice(): string
+	{
+		$order = $this->Uses()->first();
+		return $order ? $order->dbObject('OrderedOn')->Nice() : '';
+	}
+
+	/**
+	 * Total taken off the paid orders this coupon was used on
+	 */
+	public function DiscountGiven(): float
+	{
+		$orderIDs = $this->Uses()->column('ID');
+
+		return abs((float) CouponModification::get()
+			->filter(['CouponID' => $this->ID, 'OrderID' => $orderIDs ?: [0]])
+			->sum('Price'));
+	}
+
+	public function UsageSummary(): string
+	{
+		$count = $this->UseCount();
+		if (!$count) {
+			return 'Not used on any paid orders yet.';
+		}
+
+		return sprintf(
+			'Used on %d paid %s, $%s off in total. Last used %s.',
+			$count,
+			$count === 1 ? 'order' : 'orders',
+			number_format($this->DiscountGiven(), 2),
+			$this->LastUsedNice()
+		);
+	}
+
+	private function usesGridField(): GridField
+	{
+		$money = fn ($value) => '$' . number_format((float) $value, 2);
+
+		$config = GridFieldConfig::create()->addComponents(
+			GridFieldToolbarHeader::create(),
+			GridFieldSortableHeader::create(),
+			GridFieldDataColumns::create(),
+			GridFieldPaginator::create(50)
+		);
+		$config->getComponentByType(GridFieldDataColumns::class)
+			->setDisplayFields([
+				'ID' => 'Order #',
+				'OrderedOn' => 'Date',
+				'Member.Name' => 'Customer',
+				'CouponCode' => 'Code entered',
+				'CouponAmount' => 'Discount',
+				'TotalPrice' => 'Order total',
+			])
+			->setFieldFormatting([
+				'OrderedOn' => fn ($value, $order) => $order->dbObject('OrderedOn')->Nice(),
+				'CouponAmount' => $money,
+				// the column, not Order::TotalPrice(), which returns a Price object
+				'TotalPrice' => fn ($value, $order) => $money($order->getField('TotalPrice')),
+			]);
+
+		return GridField::create('CouponUses', 'Paid orders using this coupon', $this->Uses(), $config);
 	}
 
 	/**
