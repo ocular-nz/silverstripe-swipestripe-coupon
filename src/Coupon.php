@@ -439,6 +439,14 @@ class Coupon_CheckoutFormExtension extends Extension
 		);
 		return $fields;
 	}
+
+	/**
+	 * The coupon field is rendered outside the form's field list, so allow it in OrderForm::update()
+	 */
+	public function updateOrderUpdateFields(array &$allowed, $order)
+	{
+		$allowed[] = 'CouponCode';
+	}
 }
 
 class Coupon_Field extends TextField
